@@ -1,10 +1,8 @@
 import makeWASocket, {
   DisconnectReason,
   fetchLatestBaileysVersion,
-  MessageUpsertType,
   proto,
   useMultiFileAuthState,
-  WAMessageKey,
 } from '@whiskeysockets/baileys';
 import { config } from '../config.js';
 import P from 'pino';

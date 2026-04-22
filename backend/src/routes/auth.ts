@@ -1,13 +1,9 @@
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { config } from '../config.js';
 
 let db: ReturnType<typeof import('better-sqlite3')>;
-
-function getDB() {
-  return db;
-}
 
 export function initAuthRoutes(database: ReturnType<typeof import('better-sqlite3')>) {
   db = database;
@@ -36,8 +32,8 @@ export function initAuthRoutes(database: ReturnType<typeof import('better-sqlite
       
       const token = jwt.sign(
         { id: staff.id, username: staff.username, displayName: staff.display_name },
-        config.jwtSecret,
-        { expiresIn: config.jwtExpiresIn }
+        config.jwtSecret as string,
+        { expiresIn: config.jwtExpiresIn } as SignOptions
       );
       
       // Update status online

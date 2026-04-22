@@ -3,7 +3,6 @@ import http from 'http';
 import path from 'path';
 import fs from 'fs';
 import { Server as SocketIOServer } from 'socket.io';
-import Database from 'better-sqlite3';
 import { config } from './config.js';
 import { initializeDatabase } from './db/migrate.js';
 import { initAuthRoutes } from './routes/auth.js';
@@ -76,8 +75,8 @@ registerOnMessage(async (msg: any) => {
     VALUES (?, 'customer', ?, ?, 'inbound', 'delivered', datetime('now'))
   `).run(customer.id, text || '<media>', type);
 
-  const saved = db.prepare(`SELECT * FROM messages WHERE id = ?`).get(result.lastInsertRowid as number);
-  io.emit('message:new', { ...saved, customer });
+  const saved = db.prepare(`SELECT * FROM messages WHERE id = ?`).get(result.lastInsertRowid as number) as any;
+  io.emit('message:new', { ...(saved || {}), customer });
   io.emit('conversation:update', { customerId: customer.id, lastMessageAt: new Date().toISOString() });
 });
 
