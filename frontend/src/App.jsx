@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { io } from 'socket.io-client'
 
-const API = 'http://localhost:3100/api'
+const API = `${window.location.protocol}//${window.location.hostname}:3100/api`
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('admin')
@@ -45,7 +45,7 @@ export default function App() {
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
 
-  const socket = useMemo(() => io('http://localhost:3100', { autoConnect: !!auth }), [auth])
+  const socket = useMemo(() => io(`${window.location.protocol}//${window.location.hostname}:3100`, { autoConnect: !!auth }), [auth])
 
   useEffect(() => {
     if (!auth) return
