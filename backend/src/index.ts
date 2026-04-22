@@ -9,8 +9,7 @@ import { initializeDatabase } from './db/migrate.js';
 import { initAuthRoutes } from './routes/auth.js';
 import { initStaffRoutes } from './routes/staff.js';
 import { initChatRoutes } from './routes/chat.js';
-import { connectWhatsApp, onMessage as onMessageRef } from './utils/baileys.js';
-import * as baileysModule from './utils/baileys.js';
+import { connectWhatsApp, registerOnMessage } from './utils/baileys.js';
 import { initSocket } from './ws/socket.js';
 
 const app = express();
@@ -42,7 +41,7 @@ app.get('/api/wa/status', (_req, res) => {
 });
 
 // Handle incoming WhatsApp messages
-(baileysModule as any).onMessage = async (msg: any) => {
+registerOnMessage(async (msg: any) => {
   const from = msg?.key?.remoteJid;
   const fromMe = msg?.key?.fromMe;
   if (!from || fromMe) return;
@@ -80,7 +79,7 @@ app.get('/api/wa/status', (_req, res) => {
   const saved = db.prepare(`SELECT * FROM messages WHERE id = ?`).get(result.lastInsertRowid as number);
   io.emit('message:new', { ...saved, customer });
   io.emit('conversation:update', { customerId: customer.id, lastMessageAt: new Date().toISOString() });
-};
+});
 
 initSocket(io, db);
 

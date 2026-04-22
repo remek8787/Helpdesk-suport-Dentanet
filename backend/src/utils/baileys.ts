@@ -12,8 +12,12 @@ import P from 'pino';
 let socket: ReturnType<typeof makeWASocket> | null = null;
 let isConnecting = false;
 
-export type OnMessageHandler = (msg: proto.IWebMessageInfo) => void;
-export let onMessage: OnMessageHandler | null = null;
+export type OnMessageHandler = (msg: proto.IWebMessageInfo) => void | Promise<void>;
+let onMessageHandler: OnMessageHandler | null = null;
+
+export function registerOnMessage(handler: OnMessageHandler) {
+  onMessageHandler = handler;
+}
 
 /** Connect to WhatsApp via Baileys multi-device */
 export async function connectWhatsApp(): Promise<typeof socket> {
@@ -69,14 +73,12 @@ export async function connectWhatsApp(): Promise<typeof socket> {
   });
   
   socket.ev.on('messages.upsert', async (m) => {
-    if (onMessage && m.messages.length > 0) {
+    if (onMessageHandler && m.messages.length > 0) {
       const msg = m.messages[0];
-      if (!msg.message || m.type === 'notify') {
-        try {
-          await onMessage(msg);
-        } catch (err) {
-          console.error('[WA] Error handling message:', err);
-        }
+      try {
+        await onMessageHandler(msg);
+      } catch (err) {
+        console.error('[WA] Error handling message:', err);
       }
     }
   });
