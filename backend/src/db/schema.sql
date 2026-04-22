@@ -32,10 +32,10 @@ CREATE TABLE IF NOT EXISTS messages (
     message_type TEXT DEFAULT 'text' CHECK(message_type IN ('text', 'image', 'video', 'document', 'audio', 'sticker', 'location', 'contact', 'reaction')),
     direction TEXT NOT NULL DEFAULT 'inbound' CHECK(direction IN ('inbound', 'outbound')),
     status TEXT DEFAULT 'delivered' CHECK(status IN ('sent', 'delivered', 'read', 'failed')),
-    timestamp DATETIME DEFAULT (datetime('now')),
-    INDEX idx_customer_messages (customer_id, timestamp DESC),
-    INDEX idx_staff_sent (staff_id, timestamp ASC)
+    timestamp DATETIME DEFAULT (datetime('now'))
 );
 
+CREATE INDEX IF NOT EXISTS idx_customer_messages ON messages(customer_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_staff_sent ON messages(staff_id, timestamp ASC);
 CREATE INDEX IF NOT EXISTS idx_messages_timestamp ON messages(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_customers_waid ON customers(wa_id);
