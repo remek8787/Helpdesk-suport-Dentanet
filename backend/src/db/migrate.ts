@@ -22,8 +22,18 @@ export function initializeDatabase(): Database.Database {
 
   const db = new Database(config.dbPath);
   
-  // Run schema
-  const schemaSQL = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
+  // Run schema with multiple fallback paths for dev/build/runtime
+  const schemaCandidates = [
+    path.join(__dirname, 'schema.sql'),
+    path.join(__dirname, 'db', 'schema.sql'),
+    path.join(process.cwd(), 'src', 'db', 'schema.sql'),
+    path.join(process.cwd(), 'dist', 'db', 'schema.sql'),
+  ];
+  const schemaPath = schemaCandidates.find((p) => fs.existsSync(p));
+  if (!schemaPath) {
+    throw new Error(`schema.sql not found. Tried: ${schemaCandidates.join(', ')}`);
+  }
+  const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
   db.exec(schemaSQL);
   
   console.log('[DB] Database initialized at:', config.dbPath);
